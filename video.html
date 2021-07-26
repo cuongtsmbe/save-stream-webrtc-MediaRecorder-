@@ -1,19 +1,13 @@
-<!-- 1. Include action buttons play/stop -->
+/* tham khảo https://ichi.pro/vi/tao-ung-dung-ghi-am-dau-tien-cua-ban-bang-api-mediarecorder-232431461475795 */
 <button id="btn-start-recording">Start Recording</button>
 <button id="btn-stop-recording">Stop Recording</button>
 <button id="btn-pause-recording">pause Recording</button>
 <button id="btn-resume-recording">resume Recording</button>
-<!--
-    2. Include a video element that will display the current video stream
-    and as well to show the recorded video at the end.
- -->
+
 <hr>
 <video id="my-preview" controls autoplay></video>
 <video id="videoSaveRecord" controls autoplay></video>
-<!-- 
-3. Include the RecordRTC library and the latest adapter.
-Note that you may want to host these scripts in your own server
--->
+
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
@@ -25,11 +19,11 @@ Note that you may want to host these scripts in your own server
         var videoTag = document.getElementById("my-preview");
         videoTag.srcObject = stream;
     }
-    // Store a reference of the preview video element and a global reference to the recorder instance
+
     var video = document.getElementById('my-preview');
     var recorder;
     var chunks = [];
-    // When the user clicks on start video recording
+
     document.getElementById('btn-start-recording').addEventListener("click", async function() {
 
         displayStream = await navigator.mediaDevices.getDisplayMedia({ //share screen
@@ -50,24 +44,16 @@ Note that you may want to host these scripts in your own server
         });
 
         document.getElementById('btn-stop-recording').addEventListener("click", function() { //chỉ khi nào start recorder mới cho stop recorder
-            mediaRecorder.stop(); // thực hiện lần lượt : (1) (2)
+            mediaRecorder.stop(); //stop recorder thực hiện lần lượt : (1) (2)
             console.log("dừng recorder");
         });
         document.getElementById('btn-pause-recording').addEventListener("click", function() { //pause recorder
-            mediaRecorder.pause();
-            console.log("pause: ");
-            console.log(mediaRecorder);
-
+            mediaRecorder.pause();//pause
         });
         document.getElementById('btn-resume-recording').addEventListener("click", function() { // stop recorder
-            mediaRecorder.resume();
-            console.log(" continue: ");
-            console.log(mediaRecorder);
-
+            mediaRecorder.resume();//continue recorder
         });
 
-        console.log("media Recored: ");
-        console.log(mediaRecorder);
         mediaRecorder.start(); //bắt đầu recorder
 
         mediaRecorder.onstop = () => { //(2)
