@@ -1,0 +1,89 @@
+<!-- 1. Include action buttons play/stop -->
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording">Stop Recording</button>
+<button id="btn-pause-recording">pause Recording</button>
+<button id="btn-resume-recording">resume Recording</button>
+<!--
+    2. Include a video element that will display the current video stream
+    and as well to show the recorded video at the end.
+ -->
+<hr>
+<video id="my-preview" controls autoplay></video>
+<video id="videoSaveRecord" controls autoplay></video>
+<!-- 
+3. Include the RecordRTC library and the latest adapter.
+Note that you may want to host these scripts in your own server
+-->
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<!-- 4. Initialize and prepare the video recorder logic -->
+<script>
+    var recordedVideo = document.getElementById("videoSaveRecord");
+
+    function videoShow(stream) { //show stream in tag video 
+        var videoTag = document.getElementById("my-preview");
+        videoTag.srcObject = stream;
+    }
+    // Store a reference of the preview video element and a global reference to the recorder instance
+    var video = document.getElementById('my-preview');
+    var recorder;
+    var chunks = [];
+    // When the user clicks on start video recording
+    document.getElementById('btn-start-recording').addEventListener("click", async function() {
+
+        displayStream = await navigator.mediaDevices.getDisplayMedia({ //share screen
+            video: true,
+        });
+        audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+        [videoTrack] = displayStream.getVideoTracks();
+        [audioTrack] = audioStream.getAudioTracks();
+        const stream = new MediaStream([videoTrack, audioTrack]);
+
+        videoShow(stream); //show stream ra màn hình
+
+
+        const mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'video/webm;codecs=vp8'
+        });
+
+        document.getElementById('btn-stop-recording').addEventListener("click", function() { //chỉ khi nào start recorder mới cho stop recorder
+            mediaRecorder.stop(); // thực hiện lần lượt : (1) (2)
+            console.log("dừng recorder");
+        });
+        document.getElementById('btn-pause-recording').addEventListener("click", function() { //pause recorder
+            mediaRecorder.pause();
+            console.log("pause: ");
+            console.log(mediaRecorder);
+
+        });
+        document.getElementById('btn-resume-recording').addEventListener("click", function() { // stop recorder
+            mediaRecorder.resume();
+            console.log(" continue: ");
+            console.log(mediaRecorder);
+
+        });
+
+        console.log("media Recored: ");
+        console.log(mediaRecorder);
+        mediaRecorder.start(); //bắt đầu recorder
+
+        mediaRecorder.onstop = () => { //(2)
+            chunks.forEach(e => {
+                console.log("show dữ liệu vừa recored ra :");
+                console.log(e); //Blob {size: 68330, type: "video/webm;codecs=vp8,opus"} 
+                recordedVideo.src = window.URL.createObjectURL(e); //    window.URL.createObjectURL(e) is:   blob:null/da278a32-615d-4e1f-90e2-fb9784859483 truyền cho element video bằng src
+                recordedVideo.controls = true;
+                recordedVideo.play();
+
+            });
+        };
+        chunks = [];
+        mediaRecorder.ondataavailable = (e) => { //(1) thực hiện thêm recorder vào chunks
+            chunks.push(e.data);
+        };
+
+    });
+</script>
